@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>WC 2026 · Predictor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+
+<body>
+  <header class="hdr">
+    <div class="hdr-logo">WC 2026 <em>PREDICTOR</em></div>
+  </header>
+
+  <main>
+
+    <!-- PREDICT -->
+    <div id="v-predict" class="view">
+      <div class="pred-tabs">
+        <button class="ptab on" id="ptab-new"  onclick="switchPredTab('new')">New Prediction</button>
+        <button class="ptab"    id="ptab-edit" onclick="switchPredTab('edit')">Edit Prediction</button>
+      </div>
+      <div id="edit-panel" style="display:none">
+        <div id="edit-player-list"></div>
+      </div>
+      <div id="pred-form-wrap">
+        <div class="card name-strip">
+          <div class="strip-label">Your Name</div>
+          <input type="text" id="inp-name" placeholder="Enter your name" maxlength="40" autocomplete="name">
+          <div class="progress-row">
+            <span id="prog-txt">0 of 72 matches filled</span>
+            <span id="prog-pct">0%</span>
+          </div>
+          <div class="pbar"><div class="pfill" id="pfill" style="width:0%"></div></div>
+          <button class="btn-lucky" onclick="luckyDip()">🎲 Lucky Dip — fill all scores randomly</button>
+        </div>
+        <div id="groups-wrap"></div>
+        <div class="sub-wrap">
+          <button class="btn-g" id="sub-btn" disabled>Submit My Predictions</button>
+          <div class="sub-hint">You can edit anytime to update your predictions but only games in the future!</div>
+        </div>
+        <div class="success-box" id="success-box">
+          <div class="ick">🏆</div>
+          <h3>Predictions Saved!</h3>
+          <p id="success-msg">Good luck on the leaderboard!</p>
+          <div class="go" onclick="go('leaderboard')">View Leaderboard →</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD -->
+    <div id="v-leaderboard" class="view on">
+      <div class="score-key">
+        <div class="key-row"><span class="kpt" style="color:var(--gold)">5</span> Exact scoreline</div>
+        <div class="key-row"><span class="kpt" style="color:var(--blue)">3</span> Right result, 1 score correct</div>
+        <div class="key-row"><span class="kpt" style="color:var(--green)">2</span> Right result, both scores wrong</div>
+        <div class="key-row"><span class="kpt" style="color:var(--muted)">1</span> Wrong result, 1 score correct</div>
+      </div>
+      <div class="lb-top">
+        <button class="btn-sm" onclick="loadLB()">↻ Refresh</button>
+      </div>
+      <div id="lb-body"><div class="lb-empty"><div class="ico">⏳</div><p>Loading…</p></div></div>
+    </div>
+
+    <!-- ADMIN -->
+    <div id="v-admin" class="view">
+      <div id="admin-lock">
+        <div class="lock-wrap">
+          <div class="lock-ico">🔐</div>
+          <h2>Admin Access</h2>
+          <p>Enter the admin password to input match results.<br>Only the organiser needs this.</p>
+          <form onsubmit="adminLogin(event)">
+            <input type="password" id="adm-pw" placeholder="Admin password" autocomplete="current-password">
+            <button class="btn-g" type="submit">Unlock</button>
+          </form>
+        </div>
+      </div>
+      <div id="admin-panel" style="display:none">
+        <div class="adm-hdr">
+          <h2>Enter Results</h2>
+          <button class="adm-save" onclick="saveResults()">💾 Save All</button>
+        </div>
+        <div id="admin-groups-wrap"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <nav class="nav">
+    <button class="ntab" id="tab-predict" onclick="go('predict')">
+      <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Predict
+    </button>
+    <button class="ntab on" id="tab-leaderboard" onclick="go('leaderboard')">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Leaderboard
+    </button>
+    <button class="ntab" id="tab-admin" onclick="go('admin')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Admin
+    </button>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+</body>
+</html>
