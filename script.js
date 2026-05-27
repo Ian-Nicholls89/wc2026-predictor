@@ -26,6 +26,25 @@ const FLAGS = {
   'England':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Croatia':'🇭🇷','Ghana':'🇬🇭','Panama':'🇵🇦',
 };
 
+const FLAG_CODES = {
+  'Mexico':'mx','South Korea':'kr','South Africa':'za','Czechia':'cz',
+  'Canada':'ca','Bosnia & Herz.':'ba','Qatar':'qa','Switzerland':'ch',
+  'Brazil':'br','Morocco':'ma','Haiti':'ht','Scotland':'gb-sct',
+  'USA':'us','Paraguay':'py','Australia':'au','Turkey':'tr',
+  'Germany':'de','Curaçao':'cw','Ivory Coast':'ci','Ecuador':'ec',
+  'Netherlands':'nl','Japan':'jp','Sweden':'se','Tunisia':'tn',
+  'Belgium':'be','Iran':'ir','Egypt':'eg','New Zealand':'nz',
+  'Spain':'es','Cape Verde':'cv','Saudi Arabia':'sa','Uruguay':'uy',
+  'France':'fr','Senegal':'sn','Iraq':'iq','Norway':'no',
+  'Argentina':'ar','Algeria':'dz','Austria':'at','Jordan':'jo',
+  'Portugal':'pt','DR Congo':'cd','Uzbekistan':'uz','Colombia':'co',
+  'England':'gb-eng','Croatia':'hr','Ghana':'gh','Panama':'pa',
+};
+function flagEl(team) {
+  const code = FLAG_CODES[team];
+  return code ? `<span class="fi fi-${code} flag-icon"></span>` : '';
+}
+
 // Database for rich tooltips with expanded achievements and historical form
 const TEAM_STATS = {
   'Argentina':    { rank: 3,  wcs: 3, regs: 16, last: '2022', lastPerf: 'Winners', best: 'Winners (1978, 1986, 2022)', form: 'W-W-W-L-W' },
@@ -361,7 +380,7 @@ function mrow(m, isAdm) {
     // Custom label parsing if the nation is making its tournament debut
     const lastAppearance = s.last === 'None' ? 'Never Qualified' : `${s.last} (${s.lastPerf})`;
 
-    return `${FLAGS[teamName]} ${teamName}
+    return `${teamName}
     FIFA Rank: #${s.rank}
     🏆 World Cups: ${s.wcs}
     🌍 Regional Cups: ${s.regs}
@@ -374,7 +393,7 @@ function mrow(m, isAdm) {
   <div class="mrow">
     <div class="mgrp"><span class="grp-pip g${m.g}">${m.g}</span></div>
     <div class="team custom-tip" data-tip="${getTip(m.h)}">
-      <span class="flag">${FLAGS[m.h]||'🏳️'}</span>
+      ${flagEl(m.h)}
       <span class="tname">${m.h}</span>
     </div>
     <div class="sc">
@@ -386,7 +405,7 @@ function mrow(m, isAdm) {
     </div>
     <div class="team r custom-tip" data-tip="${getTip(m.a)}">
       <span class="tname">${m.a}</span>
-      <span class="flag">${FLAGS[m.a]||'🏳️'}</span>
+      ${flagEl(m.a)}
     </div>
   </div>`;
 }
@@ -765,11 +784,11 @@ function statsDateGroups() {
 function statsMatchHeader(m) {
   return `<div class="stat-match-teams">
     <span class="grp-pip g${m.g}">${m.g}</span>
-    <span>${FLAGS[m.h]||'🏳'}</span>
+    ${flagEl(m.h)}
     <span class="stat-tname">${escHtml(m.h)}</span>
     <span class="stat-vs">vs</span>
     <span class="stat-tname">${escHtml(m.a)}</span>
-    <span>${FLAGS[m.a]||'🏳'}</span>
+    ${flagEl(m.a)}
   </div>`;
 }
 

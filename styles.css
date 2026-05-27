@@ -86,6 +86,7 @@ button{cursor:pointer;font-family:'DM Sans',sans-serif;border:none;border-radius
 .team{flex:1;display:flex;align-items:center;gap:5px;font-size:12px;font-weight:500;min-width:0}
 .team.r{justify-content:flex-end}
 .flag{font-size:16px;line-height:1;flex-shrink:0}
+.flag-icon{width:20px;height:15px;flex-shrink:0;vertical-align:middle;border-radius:2px}
 .tname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .team.r .tname{text-align:right}
 .sc{display:flex;align-items:center;gap:4px;flex-shrink:0}
