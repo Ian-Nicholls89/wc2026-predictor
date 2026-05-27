@@ -75,7 +75,7 @@
         <div class="rules-hdr">Deadlines</div>
         <div class="rules-timeline">
           <div class="rtl-row">
-            <div class="rtl-date">Now</div>
+            <div class="rtl-date">&lt;11 Jun</div>
             <div class="rtl-event">Predictions open — submit yours any time</div>
           </div>
           <div class="rtl-row">
@@ -105,7 +105,7 @@
       </div>
       <div id="pred-countdown-wrap">
         <div id="pcd-open" class="card pcd-card">
-          <div class="pcd-label">Predictions close in</div>
+          <div class="pcd-label">New Predictions close in</div>
           <div class="pcd-timer">
             <div class="pcd-unit"><span class="pcd-num" id="pcd-days">--</span><span class="pcd-unit-lbl">days</span></div>
             <div class="pcd-sep">:</div>
@@ -127,18 +127,8 @@
         <div class="card name-strip">
           <div class="strip-label">Your Name</div>
           <input type="text" id="inp-name" placeholder="Enter your name" maxlength="40" autocomplete="name">
-          <div class="progress-row">
-            <span id="prog-txt">0 of 72 matches filled</span>
-            <span id="prog-pct">0%</span>
-          </div>
-          <div class="pbar"><div class="pfill" id="pfill" style="width:0%"></div></div>
-          <button class="btn-lucky" onclick="luckyDip()">🎲 Lucky Dip — fill all scores randomly</button>
         </div>
         <div id="groups-wrap"></div>
-        <div class="sub-wrap">
-          <button class="btn-g" id="sub-btn" disabled>Submit My Predictions</button>
-          <div class="sub-hint">You can edit anytime to update your predictions but only games in the future!</div>
-        </div>
         <div class="success-box" id="success-box">
           <div class="ick">🏆</div>
           <h3>Predictions Saved!</h3>
@@ -158,8 +148,22 @@
       </div>
       <div class="lb-top">
         <button class="btn-sm" onclick="loadLB()">↻ Refresh</button>
+        <button class="btn-sm" onclick="copyLB()">📋 Copy</button>
       </div>
       <div id="lb-body"><div class="lb-empty"><div class="ico">⏳</div><p>Loading…</p></div></div>
+    </div>
+
+    <!-- STATS -->
+    <div id="v-stats" class="view">
+      <div class="pred-tabs">
+        <button class="ptab on"    id="stab-overview" onclick="switchStatsTab('overview')">Match Overview</button>
+        <button class="ptab" id="stab-preds"    onclick="switchStatsTab('preds')">Predictions</button>
+      </div>
+      <div class="lb-top">
+        <button class="btn-sm" onclick="lbCache=null;loadStats()">↻ Refresh</button>
+      </div>
+      <div id="stats-preds" style="display:none"></div>
+      <div id="stats-overview"><div class="lb-empty"><div class="ico">⏳</div><p>Loading…</p></div></div>
     </div>
 
     <!-- ADMIN -->
@@ -186,6 +190,18 @@
 
   </main>
 
+  <div id="pred-sticky" style="display:none">
+    <div class="pred-sticky-prog">
+      <span id="prog-txt">0 of 72 matches filled</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="pbar"><div class="pfill" id="pfill" style="width:0%"></div></div>
+    <div class="pred-sticky-btns">
+      <button class="btn-lucky pred-sticky-lucky" onclick="luckyDip()">🎲 Lucky Dip</button>
+      <button class="btn-g" id="sub-btn" disabled>Submit My Predictions</button>
+    </div>
+  </div>
+
   <nav class="nav">
     <button class="ntab" id="tab-rules" onclick="go('rules')">
       <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
@@ -198,6 +214,10 @@
     <button class="ntab on" id="tab-leaderboard" onclick="go('leaderboard')">
       <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
       Leaderboard
+    </button>
+    <button class="ntab" id="tab-stats" onclick="go('stats')">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Stats
     </button>
     <button class="ntab" id="tab-admin" onclick="go('admin')">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>

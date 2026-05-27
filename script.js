@@ -516,7 +516,10 @@ document.getElementById('sub-btn').addEventListener('click', async () => {
       clearInterval(interval);
       document.getElementById('pcd-open').style.display   = 'none';
       document.getElementById('pcd-closed').style.display = 'block';
-      if (!editMode) document.getElementById('pred-form-wrap').style.display = 'none';
+      if (!editMode) {
+        document.getElementById('pred-form-wrap').style.display = 'none';
+        document.getElementById('pred-sticky').style.display    = 'none';
+      }
       return;
     }
     const pad = n => String(n).padStart(2, '0');
@@ -539,7 +542,8 @@ function go(v) {
   document.getElementById('v-'+v).classList.add('on');
   document.getElementById('tab-'+v).classList.add('on');
   if (v==='leaderboard') loadLB();
-  if (v==='predict' && isTournamentStarted() && !editMode) switchPredTab('edit');
+  if (v==='stats')       loadStats();
+  if (v==='predict')     switchPredTab(editMode ? 'edit' : 'new');
 }
 
 // ═══════════════════════════════════════════════════
@@ -557,6 +561,7 @@ function switchPredTab(tab) {
   if (editMode) {
     document.getElementById('edit-panel').style.display = 'block';
     document.getElementById('pred-countdown-wrap').style.display = 'none';
+    document.getElementById('pred-sticky').style.display = 'none';
     document.getElementById('pred-form-wrap').style.display = editPlayerSelected ? 'block' : 'none';
     if (backBtn)    backBtn.style.display    = editPlayerSelected ? 'block' : 'none';
     if (lockNotice) lockNotice.style.display = editPlayerSelected ? 'block' : 'none';
@@ -573,7 +578,9 @@ function switchPredTab(tab) {
 
     document.getElementById('edit-panel').style.display = 'none';
     document.getElementById('pred-countdown-wrap').style.display = 'block';
-    document.getElementById('pred-form-wrap').style.display = isTournamentStarted() ? 'none' : 'block';
+    const started = isTournamentStarted();
+    document.getElementById('pred-form-wrap').style.display = started ? 'none' : 'block';
+    document.getElementById('pred-sticky').style.display    = started ? 'none' : 'block';
     if (backBtn)    backBtn.style.display    = 'none';
     if (lockNotice) lockNotice.style.display = 'none';
     editPlayerSelected = false;
@@ -632,7 +639,7 @@ function renderEditPlayerList() {
       <div class="epr-arrow">›</div>
     </div>`).join('');
 
-  el.innerHTML = `<div class="edit-list-hdr">Select a player to update their predictions</div>
+  el.innerHTML = `<div class="edit-list-hdr">Select your name to update your predictions</div>
     <div class="edit-list">${rows}</div>
     <div class="edit-list-refresh"><button class="btn-sm" onclick="lbCache=null;renderEditPlayerList()">↻ Refresh list</button></div>`;
 
@@ -701,6 +708,154 @@ function selectEditPlayer(idx) {
 
   toast(`Loaded ${escHtml(player.name)}'s predictions`, 'ok');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════════════════════
+//  STATS
+// ═══════════════════════════════════════════════════
+let statsTab = 'overview';
+
+function switchStatsTab(tab) {
+  statsTab = tab;
+  document.getElementById('stab-preds').classList.toggle('on',    tab === 'preds');
+  document.getElementById('stab-overview').classList.toggle('on', tab === 'overview');
+  document.getElementById('stats-preds').style.display    = tab === 'preds'    ? '' : 'none';
+  document.getElementById('stats-overview').style.display = tab === 'overview' ? '' : 'none';
+}
+
+async function loadStats() {
+  const predsEl = document.getElementById('stats-preds');
+  if (!lbCache) {
+    predsEl.innerHTML = `<div class="lb-empty"><div class="ico">⏳</div><p>Loading…</p></div>`;
+    try {
+      const res = await fetch(SCRIPT_URL + '?action=get_data');
+      lbCache = await res.json();
+    } catch(e) {
+      predsEl.innerHTML = `<div class="lb-empty"><div class="ico">❌</div><p>Could not load data.<br>${escHtml(e.message)}</p></div>`;
+      return;
+    }
+  }
+  const pp = (lbCache && lbCache.predictions) || [];
+  if (!pp.length) {
+    const empty = `<div class="lb-empty"><div class="ico">👀</div><p>No predictions yet.<br>Be the first to submit!</p></div>`;
+    predsEl.innerHTML = empty;
+    document.getElementById('stats-overview').innerHTML = empty;
+    return;
+  }
+  const sortedM  = [...M].sort((a,b) => a.id - b.id);
+  const matchData = {};
+  M.forEach(m => matchData[m.id] = { players: [] });
+  pp.forEach(p => {
+    sortedM.forEach((m, i) => {
+      const h = p.scores[i*2], a = p.scores[i*2+1];
+      if (h != null && h !== '' && a != null && a !== '')
+        matchData[m.id].players.push({ name: p.name, h: +h, a: +a });
+    });
+  });
+  renderStatsPreds(matchData);
+  renderStatsOverview(matchData);
+}
+
+function statsDateGroups() {
+  const g = {};
+  M.forEach(m => (g[m.d] = g[m.d] || []).push(m));
+  return g;
+}
+
+function statsMatchHeader(m) {
+  return `<div class="stat-match-teams">
+    <span class="grp-pip g${m.g}">${m.g}</span>
+    <span>${FLAGS[m.h]||'🏳'}</span>
+    <span class="stat-tname">${escHtml(m.h)}</span>
+    <span class="stat-vs">vs</span>
+    <span class="stat-tname">${escHtml(m.a)}</span>
+    <span>${FLAGS[m.a]||'🏳'}</span>
+  </div>`;
+}
+
+function renderStatsPreds(matchData) {
+  const myName = (localStorage.getItem('wc26_name') || '').toLowerCase();
+  const groups  = statsDateGroups();
+  let html = '';
+  Object.keys(DAY).forEach(d => {
+    const matches = groups[d];
+    if (!matches) return;
+    const [dd, mm] = d.split(' ');
+    html += `<div class="card stat-date-card">
+      <div class="stat-date-hdr">
+        <div class="date-badge"><div class="dd">${dd}</div><div class="mm">${mm}</div></div>
+        <div class="grp-info"><div class="grp-name">${DAY[d]}, ${d}</div></div>
+      </div>`;
+    matches.forEach(m => {
+      const md = matchData[m.id];
+      html += `<div class="stat-match-row">${statsMatchHeader(m)}`;
+      if (!md.players.length) {
+        html += `<div class="stat-empty-match">No predictions yet</div>`;
+      } else {
+        html += `<div class="stat-pills">`;
+        md.players.forEach(p => {
+          const oc   = p.h > p.a ? 'hw' : p.h < p.a ? 'aw' : 'dr';
+          const isMe = p.name.toLowerCase() === myName;
+          html += `<div class="stat-pill ${oc}${isMe?' me':''}">
+            <span class="stat-pill-name">${escHtml(p.name)}</span>
+            <span class="stat-pill-score">${p.h}–${p.a}</span>
+          </div>`;
+        });
+        html += `</div>`;
+      }
+      html += `</div>`;
+    });
+    html += `</div>`;
+  });
+  document.getElementById('stats-preds').innerHTML = html;
+}
+
+function renderStatsOverview(matchData) {
+  const groups = statsDateGroups();
+  let html = '';
+  Object.keys(DAY).forEach(d => {
+    const matches = groups[d];
+    if (!matches) return;
+    const [dd, mm] = d.split(' ');
+    html += `<div class="card stat-date-card">
+      <div class="stat-date-hdr">
+        <div class="date-badge"><div class="dd">${dd}</div><div class="mm">${mm}</div></div>
+        <div class="grp-info"><div class="grp-name">${DAY[d]}, ${d}</div></div>
+      </div>`;
+    matches.forEach(m => {
+      const md = matchData[m.id];
+      html += `<div class="stat-match-row">${statsMatchHeader(m)}`;
+      if (!md.players.length) {
+        html += `<div class="stat-empty-match">No predictions yet</div>`;
+      } else {
+        const tot = md.players.length;
+        let hw = 0, dr = 0, aw = 0;
+        const sc = {};
+        md.players.forEach(p => {
+          if (p.h > p.a) hw++; else if (p.h < p.a) aw++; else dr++;
+          const k = `${p.h}–${p.a}`;
+          sc[k] = (sc[k] || 0) + 1;
+        });
+        const pct  = n  => Math.round(n / tot * 100);
+        const bar  = (lbl, n, cls) =>
+          `<div class="stat-bar-row">
+            <div class="stat-bar-lbl">${lbl}</div>
+            <div class="stat-bar-track"><div class="stat-bar-fill ${cls}" style="width:${pct(n)}%"></div></div>
+            <div class="stat-bar-pct">${pct(n)}%<span class="stat-bar-n"> (${n})</span></div>
+          </div>`;
+        const [topScore, topCount] = Object.entries(sc).sort((a,b) => b[1]-a[1])[0];
+        html += `<div class="stat-bars">
+          ${bar(m.h.split(' ')[0], hw, 'hw')}
+          ${bar('Draw', dr, 'dr')}
+          ${bar(m.a.split(' ')[0], aw, 'aw')}
+          <div class="stat-top-score">Most popular: <strong>${topScore}</strong> · ${topCount} ${topCount===1?'person':'people'}</div>
+        </div>`;
+      }
+      html += `</div>`;
+    });
+    html += `</div>`;
+  });
+  document.getElementById('stats-overview').innerHTML = html;
 }
 
 // ═══════════════════════════════════════════════════
@@ -802,6 +957,52 @@ function podHtml(e,pos){
     <div class="pod-name">${e.name}</div>
     <div class="pod-pts c${pos}">${e.tot}</div>
   </div>`;
+}
+
+function copyLB() {
+  if (!lbCache || !(lbCache.predictions||[]).length) {
+    toast('Nothing to copy yet', 'bad'); return;
+  }
+  const { predictions: pp, results: rr } = lbCache;
+  const rm = {};
+  (rr||[]).forEach(r => {
+    if (r.home!==null&&r.home!==''&&r.away!==null&&r.away!=='') rm[r.id]={h:r.home,a:r.away};
+  });
+  const hasResults = Object.keys(rm).length > 0;
+  const sortedM    = [...M].sort((a,b)=>a.id-b.id);
+
+  const entries = pp.map(p => {
+    let tot=0,f5=0,f3=0,f2=0,f1=0;
+    sortedM.forEach((m,i)=>{
+      const res=rm[m.id];
+      if(res){const pts=scoreMatch(p.scores[i*2],p.scores[i*2+1],res.h,res.a);
+        if(pts!==null){tot+=pts;if(pts===5)f5++;else if(pts===3)f3++;else if(pts===2)f2++;else if(pts===1)f1++;}}
+    });
+    return {name:p.name,tot,f5,f3,f2,f1};
+  });
+  entries.sort((a,b)=>b.tot-a.tot||b.f5-a.f5||b.f3-a.f3||b.f2-a.f2||b.f1-a.f1);
+  entries.forEach((e,i)=>{
+    if(i===0){e.rank=1;return;}
+    const pv=entries[i-1];
+    e.rank=(e.tot===pv.tot&&e.f5===pv.f5&&e.f3===pv.f3)?pv.rank:i+1;
+  });
+
+  const medals = ['🥇','🥈','🥉'];
+  let text = '🏆 WC 2026 Predictor · Leaderboard\n\n';
+  entries.forEach(e => {
+    const prefix = e.rank <= 3 ? medals[e.rank-1] + ' ' : '     ';
+    if (hasResults) {
+      const chips = [e.f5&&`${e.f5}×5`,e.f3&&`${e.f3}×3`,e.f2&&`${e.f2}×2`,e.f1&&`${e.f1}×1`].filter(Boolean).join('  ');
+      text += `${prefix}${e.rank}. ${e.name} · ${e.tot} pts${chips?'  ('+chips+')':''}\n`;
+    } else {
+      text += `${prefix}${e.rank}. ${e.name}\n`;
+    }
+  });
+  if (!hasResults) text += '\nResults not yet entered — scores pending.';
+
+  navigator.clipboard.writeText(text)
+    .then(()  => toast('Leaderboard copied!', 'ok'))
+    .catch(()  => toast('Copy failed', 'bad'));
 }
 
 // ═══════════════════════════════════════════════════

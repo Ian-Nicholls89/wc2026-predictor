@@ -91,8 +91,13 @@ button{cursor:pointer;font-family:'DM Sans',sans-serif;border:none;border-radius
 .sc{display:flex;align-items:center;gap:4px;flex-shrink:0}
 .vs{color:var(--muted);font-weight:700;font-size:14px}
 
-.sub-wrap{padding:16px 0 4px}
-.sub-hint{text-align:center;font-size:11px;color:var(--muted);margin-top:8px}
+/* ── Predict sticky footer ────────────────────────── */
+#pred-sticky{position:fixed;bottom:var(--nav-h);left:0;right:0;background:var(--surf);border-top:1px solid var(--border);padding:10px 12px 12px;z-index:99}
+.pred-sticky-prog{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px}
+.pred-sticky-btns{display:flex;gap:8px;margin-top:8px}
+.pred-sticky-lucky{width:auto !important;padding:10px 14px !important;margin-top:0 !important;font-size:13px !important;flex-shrink:0}
+#pred-sticky .btn-g{flex:1}
+#pred-form-wrap{padding-bottom:108px}
 .success-box{background:var(--green-bg);border:1px solid rgba(0,224,110,.25);border-radius:12px;padding:22px 16px;text-align:center;display:none}
 .success-box.on{display:block}
 .success-box .ick{font-size:36px;margin-bottom:8px}
@@ -104,7 +109,7 @@ button{cursor:pointer;font-family:'DM Sans',sans-serif;border:none;border-radius
 .score-key{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:12px}
 .key-row{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted)}
 .kpt{font-weight:700;font-size:14px;min-width:18px}
-.lb-top{display:flex;justify-content:flex-end;margin-bottom:10px}
+.lb-top{display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px}
 .lb-top button{display:flex;align-items:center;gap:5px;font-size:12px}
 .podium{display:flex;align-items:flex-end;justify-content:center;gap:6px;margin-bottom:16px;padding:12px 6px 0}
 .pod{flex:1;display:flex;flex-direction:column;align-items:center;border-radius:10px 10px 0 0;padding:10px 6px 10px;text-align:center}
@@ -277,6 +282,38 @@ input[type=number].locked{opacity:0.35;cursor:not-allowed;border-color:var(--bor
 .pcd-lock-title{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:var(--danger);margin-bottom:10px}
 .pcd-lock-sub{color:var(--muted);font-size:13px;margin-bottom:22px;line-height:1.6}
 .pcd-edit-btn{max-width:280px;margin:0 auto;display:block}
+
+/* ── Stats tab ────────────────────────────────────── */
+.stat-date-card{margin-bottom:10px}
+.stat-date-hdr{display:flex;align-items:center;padding:10px 14px;gap:10px}
+.stat-match-row{border-top:1px solid var(--border);padding:10px 14px}
+.stat-match-teams{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:500;margin-bottom:8px;overflow:hidden}
+.stat-tname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:68px}
+.stat-vs{color:var(--muted);font-size:11px;flex-shrink:0}
+.stat-empty-match{font-size:11px;color:var(--muted);padding:2px 0 4px}
+.stat-pills{display:flex;flex-wrap:wrap;gap:5px}
+.stat-pill{display:flex;align-items:center;gap:4px;border-radius:20px;padding:3px 8px 3px 6px;font-size:11px;border:1px solid var(--border)}
+.stat-pill.hw{background:rgba(79,143,255,.1);border-color:rgba(79,143,255,.25)}
+.stat-pill.dr{background:rgba(255,201,64,.08);border-color:rgba(255,201,64,.2)}
+.stat-pill.aw{background:rgba(107,120,148,.1)}
+.stat-pill.me{border-color:var(--green);background:var(--green-bg)}
+.stat-pill.me .stat-pill-name{color:var(--green)}
+.stat-pill-name{color:var(--muted);font-weight:500}
+.stat-pill-score{font-weight:700;color:var(--text)}
+.stat-pill.hw .stat-pill-score{color:var(--blue)}
+.stat-pill.dr .stat-pill-score{color:var(--gold)}
+.stat-bars{display:flex;flex-direction:column;gap:7px}
+.stat-bar-row{display:flex;align-items:center;gap:8px}
+.stat-bar-lbl{font-size:11px;font-weight:600;color:var(--muted);min-width:46px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-bar-track{flex:1;height:8px;background:var(--surf2);border-radius:4px;overflow:hidden}
+.stat-bar-fill{height:100%;border-radius:4px;transition:width .4s}
+.stat-bar-fill.hw{background:var(--blue)}
+.stat-bar-fill.dr{background:var(--gold)}
+.stat-bar-fill.aw{background:var(--muted)}
+.stat-bar-pct{font-size:11px;font-weight:600;color:var(--text);min-width:52px;text-align:right;flex-shrink:0}
+.stat-bar-n{color:var(--muted);font-weight:400}
+.stat-top-score{font-size:11px;color:var(--muted);padding-top:6px;border-top:1px solid var(--border);margin-top:2px}
+.stat-top-score strong{color:var(--green)}
 
 /* ── Rules tab ────────────────────────────────────── */
 .rules-card{margin-bottom:10px}
