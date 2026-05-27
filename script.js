@@ -503,6 +503,34 @@ document.getElementById('sub-btn').addEventListener('click', async () => {
 });
 
 // ═══════════════════════════════════════════════════
+//  PREDICT COUNTDOWN
+// ═══════════════════════════════════════════════════
+(function startPredCountdown() {
+  const DEADLINE = new Date('Jun 11, 2026');
+  DEADLINE.setHours(0, 0, 0, 0);
+  let interval;
+
+  function tick() {
+    const diff = DEADLINE - Date.now();
+    if (diff <= 0) {
+      clearInterval(interval);
+      document.getElementById('pcd-open').style.display   = 'none';
+      document.getElementById('pcd-closed').style.display = 'block';
+      if (!editMode) document.getElementById('pred-form-wrap').style.display = 'none';
+      return;
+    }
+    const pad = n => String(n).padStart(2, '0');
+    document.getElementById('pcd-days').textContent  = pad(Math.floor(diff / 86400000));
+    document.getElementById('pcd-hours').textContent = pad(Math.floor((diff % 86400000) / 3600000));
+    document.getElementById('pcd-mins').textContent  = pad(Math.floor((diff % 3600000) / 60000));
+    document.getElementById('pcd-secs').textContent  = pad(Math.floor((diff % 60000) / 1000));
+  }
+
+  tick();
+  interval = setInterval(tick, 1000);
+})();
+
+// ═══════════════════════════════════════════════════
 //  NAVIGATION
 // ═══════════════════════════════════════════════════
 function go(v) {
@@ -528,6 +556,7 @@ function switchPredTab(tab) {
 
   if (editMode) {
     document.getElementById('edit-panel').style.display = 'block';
+    document.getElementById('pred-countdown-wrap').style.display = 'none';
     document.getElementById('pred-form-wrap').style.display = editPlayerSelected ? 'block' : 'none';
     if (backBtn)    backBtn.style.display    = editPlayerSelected ? 'block' : 'none';
     if (lockNotice) lockNotice.style.display = editPlayerSelected ? 'block' : 'none';
@@ -543,22 +572,11 @@ function switchPredTab(tab) {
     updateSubmitBtn();
 
     document.getElementById('edit-panel').style.display = 'none';
-    document.getElementById('pred-form-wrap').style.display = 'block';
+    document.getElementById('pred-countdown-wrap').style.display = 'block';
+    document.getElementById('pred-form-wrap').style.display = isTournamentStarted() ? 'none' : 'block';
     if (backBtn)    backBtn.style.display    = 'none';
     if (lockNotice) lockNotice.style.display = 'none';
     editPlayerSelected = false;
-
-    if (isTournamentStarted()) {
-      let notice = document.getElementById('new-closed-notice');
-      if (!notice) {
-        notice = document.createElement('div');
-        notice.id = 'new-closed-notice';
-        notice.className = 'new-closed-notice';
-        notice.innerHTML = '🔒 <strong>New predictions are closed</strong> — the tournament started on 11 Jun 2026. Already submitted? <span class="new-closed-link" onclick="switchPredTab(\'edit\')">Edit your predictions →</span>';
-        document.getElementById('pred-form-wrap').insertAdjacentElement('afterbegin', notice);
-      }
-      notice.style.display = 'block';
-    }
   }
 }
 

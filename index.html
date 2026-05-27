@@ -17,6 +17,83 @@
 
   <main>
 
+    <!-- RULES -->
+    <div id="v-rules" class="view">
+      <div class="card rules-card">
+        <div class="rules-hdr">How to Play</div>
+        <ol class="rules-list">
+          <li>Go to the <strong>Predict</strong> tab and enter your name.</li>
+          <li>Fill in your scoreline predictions for all 72 World Cup matches.</li>
+          <li>Hit <strong>Submit My Predictions</strong> before the tournament starts.</li>
+          <li>You can edit any match prediction up until that match kicks off — once it's live, your score for it is locked.</li>
+          <li>Use <strong>Lucky Dip</strong> to fill any empty scores at random.</li>
+        </ol>
+      </div>
+
+      <div class="card rules-card">
+        <div class="rules-hdr">Scoring</div>
+        <div class="rules-score-grid">
+          <div class="rsg-row">
+            <span class="rsg-pts" style="color:var(--gold)">5</span>
+            <div class="rsg-detail">
+              <div class="rsg-label">Exact scoreline</div>
+              <div class="rsg-eg">You predicted 2–1, final was 2–1</div>
+            </div>
+          </div>
+          <div class="rsg-row">
+            <span class="rsg-pts" style="color:var(--blue)">3</span>
+            <div class="rsg-detail">
+              <div class="rsg-label">Right result + one score correct</div>
+              <div class="rsg-eg">You predicted 2–0, final was 2–1</div>
+            </div>
+          </div>
+          <div class="rsg-row">
+            <span class="rsg-pts" style="color:var(--green)">2</span>
+            <div class="rsg-detail">
+              <div class="rsg-label">Right result, both scores wrong</div>
+              <div class="rsg-eg">You predicted 1–0, final was 3–2</div>
+            </div>
+          </div>
+          <div class="rsg-row">
+            <span class="rsg-pts" style="color:var(--muted)">1</span>
+            <div class="rsg-detail">
+              <div class="rsg-label">Wrong result, one score correct</div>
+              <div class="rsg-eg">You predicted 2–1, final was 1–1</div>
+            </div>
+          </div>
+          <div class="rsg-row">
+            <span class="rsg-pts" style="color:var(--danger)">0</span>
+            <div class="rsg-detail">
+              <div class="rsg-label">Nothing correct</div>
+              <div class="rsg-eg">Better luck next match!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card rules-card">
+        <div class="rules-hdr">Deadlines</div>
+        <div class="rules-timeline">
+          <div class="rtl-row">
+            <div class="rtl-date">Now</div>
+            <div class="rtl-event">Predictions open — submit yours any time</div>
+          </div>
+          <div class="rtl-row">
+            <div class="rtl-date">11 Jun</div>
+            <div class="rtl-event">Tournament kicks off — new entries close at first match</div>
+          </div>
+          <div class="rtl-row">
+            <div class="rtl-date">Each KO</div>
+            <div class="rtl-event">Individual match scores lock at kick-off time</div>
+          </div>
+          <div class="rtl-row last">
+            <div class="rtl-date">19 Jul</div>
+            <div class="rtl-event">Final — winner crowned on the leaderboard 🏆</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- PREDICT -->
     <div id="v-predict" class="view">
       <div class="pred-tabs">
@@ -25,6 +102,26 @@
       </div>
       <div id="edit-panel" style="display:none">
         <div id="edit-player-list"></div>
+      </div>
+      <div id="pred-countdown-wrap">
+        <div id="pcd-open" class="card pcd-card">
+          <div class="pcd-label">Predictions close in</div>
+          <div class="pcd-timer">
+            <div class="pcd-unit"><span class="pcd-num" id="pcd-days">--</span><span class="pcd-unit-lbl">days</span></div>
+            <div class="pcd-sep">:</div>
+            <div class="pcd-unit"><span class="pcd-num" id="pcd-hours">--</span><span class="pcd-unit-lbl">hrs</span></div>
+            <div class="pcd-sep">:</div>
+            <div class="pcd-unit"><span class="pcd-num" id="pcd-mins">--</span><span class="pcd-unit-lbl">min</span></div>
+            <div class="pcd-sep">:</div>
+            <div class="pcd-unit"><span class="pcd-num" id="pcd-secs">--</span><span class="pcd-unit-lbl">sec</span></div>
+          </div>
+        </div>
+        <div id="pcd-closed" class="card pcd-locked-card" style="display:none">
+          <div class="pcd-lock-ico">🔒</div>
+          <div class="pcd-lock-title">New Predictions Closed</div>
+          <div class="pcd-lock-sub">The tournament started on 11 Jun 2026.<br>You can still edit scores for upcoming matches.</div>
+          <button class="btn-g pcd-edit-btn" onclick="switchPredTab('edit')">Edit My Predictions →</button>
+        </div>
       </div>
       <div id="pred-form-wrap">
         <div class="card name-strip">
@@ -54,10 +151,10 @@
     <!-- LEADERBOARD -->
     <div id="v-leaderboard" class="view on">
       <div class="score-key">
-        <div class="key-row"><span class="kpt" style="color:var(--gold)">5</span> Exact scoreline (e.g. predicted Germany 7-1 Brazil, actual Germany 7-1 Brazil)</div>
-        <div class="key-row"><span class="kpt" style="color:var(--blue)">3</span> Right result, 1 score correct (e.g. predicted Germany 3-1 Brazil, actual Germany 7-1 Brazil) </div>
-        <div class="key-row"><span class="kpt" style="color:var(--green)">2</span> Right result, both scores wrong (e.g. predicted Germany 4-2 Brazil, actual Germany 7-1 Brazil)</div>
-        <div class="key-row"><span class="kpt" style="color:var(--muted)">1</span> Wrong result, 1 score correct (e.g. predicted Germany 0-1 Brazil, actual Germany 7-1 Brazil)</div>
+        <div class="key-row"><span class="kpt" style="color:var(--gold)">5</span> Exact scoreline</div>
+        <div class="key-row"><span class="kpt" style="color:var(--blue)">3</span> Right result, 1 score correct</div>
+        <div class="key-row"><span class="kpt" style="color:var(--green)">2</span> Right result, both scores wrong</div>
+        <div class="key-row"><span class="kpt" style="color:var(--muted)">1</span> Wrong result, 1 score correct</div>
       </div>
       <div class="lb-top">
         <button class="btn-sm" onclick="loadLB()">↻ Refresh</button>
@@ -90,6 +187,10 @@
   </main>
 
   <nav class="nav">
+    <button class="ntab" id="tab-rules" onclick="go('rules')">
+      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      Rules
+    </button>
     <button class="ntab" id="tab-predict" onclick="go('predict')">
       <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       Predict
