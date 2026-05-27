@@ -560,6 +560,7 @@ function go(v) {
   document.querySelectorAll('.ntab').forEach(el => el.classList.remove('on'));
   document.getElementById('v-'+v).classList.add('on');
   document.getElementById('tab-'+v).classList.add('on');
+  if (v !== 'predict') document.getElementById('pred-sticky').style.display = 'none';
   if (v==='leaderboard') loadLB();
   if (v==='stats')       loadStats();
   if (v==='predict')     switchPredTab(editMode ? 'edit' : 'new');
